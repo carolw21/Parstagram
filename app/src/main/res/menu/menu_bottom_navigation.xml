@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/home"
+        android:icon="@drawable/instagram_home_outline_24"
+        android:title="@string/home"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/post"
+        android:icon="@drawable/instagram_new_post_outline_24"
+        android:title="@string/post"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/user"
+        android:icon="@drawable/instagram_user_outline_24"
+        android:title="@string/profile"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
+</menu>

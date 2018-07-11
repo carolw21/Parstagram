@@ -1,0 +1,14 @@
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/action_bar_semi_transparent_white</item>
+        <item name="colorPrimaryDark">@color/action_bar_transparent_background_pressed_state</item>
+        <item name="colorAccent">@color/black</item>
+    </style>
+
+    <style name="MyTheme.ActionBar.TitleTextStyle" parent="Theme.AppCompat.Light">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+</resources>
