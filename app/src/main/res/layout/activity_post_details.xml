@@ -8,7 +8,7 @@
         android:id="@+id/ivPost"
         android:layout_width="match_parent"
         android:layout_height="350dp"
-        android:layout_below="@id/tvUser"
+        android:layout_below="@+id/tvUser"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:background="@color/black" />
@@ -17,7 +17,7 @@
         android:id="@+id/tvUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@id/ivPost"
+        android:layout_alignStart="@+id/ivPost"
         android:layout_alignParentTop="true"
         android:layout_marginTop="20dp"
         android:textStyle="bold"
@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignStart="@id/ivPost"
-        android:layout_below="@id/ivPost"
+        android:layout_below="@+id/heartBtn"
         android:layout_marginTop="20dp"
         android:layout_marginLeft="10dp"
         android:textColor="@color/black"
@@ -39,11 +39,43 @@
         android:id="@+id/tvTimestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@id/ivPost"
+        android:layout_alignStart="@+id/ivPost"
         android:layout_below="@id/tvCaption"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
         android:textColor="@color/grey_6"
         android:text="TextView" />
+
+    <Button
+        android:id="@+id/heartBtn"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/ivPost"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/ufi_heart"
+        android:scaleType="fitXY" />
+
+    <Button
+        android:id="@+id/commentBtn"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/ivPost"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/ufi_comment"
+        android:layout_toEndOf="@+id/heartBtn"
+        android:scaleType="fitXY" />
+
+    <Button
+        android:id="@+id/messageBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@+id/ivPost"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="6dp"
+        android:layout_toEndOf="@+id/commentBtn"
+        android:background="@drawable/ufi_new_direct"
+        android:scaleType="fitXY" />
 
 </RelativeLayout>

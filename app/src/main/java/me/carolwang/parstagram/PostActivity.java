@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -27,6 +28,7 @@ public class PostActivity extends AppCompatActivity {
 
     EditText etCaption;
     ParseFile imageFile;
+    ProgressBar pb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,8 @@ public class PostActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.drawable.nav_logo_whiteout);
+
+        pb = findViewById(R.id.pbLoading);
 
         String imagePath = getIntent().getStringExtra("bitmap_path");
         Bitmap imageBitmap = BitmapFactory.decodeFile(imagePath);
@@ -65,12 +69,14 @@ public class PostActivity extends AppCompatActivity {
     }
 
     public void onPost(View v) {
+        pb.setVisibility(ProgressBar.VISIBLE);
         Post post = new Post(imageFile, etCaption.getText().toString(), ParseUser.getCurrentUser());
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    HomeActivity.fetchTimelineAsync(0);
+                    //HomeActivity.fetchTimelineAsync(0);
+                    pb.setVisibility(ProgressBar.INVISIBLE);
                     finish();
                 } else {
                     e.printStackTrace();

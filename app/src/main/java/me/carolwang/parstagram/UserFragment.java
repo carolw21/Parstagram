@@ -1,68 +1,37 @@
 package me.carolwang.parstagram;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link UserFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link UserFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import me.carolwang.parstagram.models.Post;
+
 public class UserFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
-
-    public UserFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment UserFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static UserFragment newInstance(String param1, String param2) {
-        UserFragment fragment = new UserFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private RecyclerView rvMyPosts;
+    private MyPostAdapter mypostAdapter;
+    private List<Post> posts;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -72,46 +41,37 @@ public class UserFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_user, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        rvMyPosts = view.findViewById(R.id.rvMyPost);
+        posts = new ArrayList<>();
+        mypostAdapter = new MyPostAdapter(posts);
+        rvMyPosts.setLayoutManager(new GridLayoutManager(view.getContext(), 3));
+        rvMyPosts.setAdapter(mypostAdapter);
+        retrievePosts();
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void retrievePosts() {
+        // Define the class we would like to query
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        // Define our query conditions
+        query.whereEqualTo("user", ParseUser.getCurrentUser());
+        query.orderByDescending("createdAt");
+        // Execute the find asynchronously
+        query.findInBackground(new FindCallback<Post>() {
+            public void done(List<Post> itemList, ParseException e) {
+                if (e == null) {
+                    posts.addAll(itemList);
+                    mypostAdapter.notifyDataSetChanged();
+                } else {
+                    Log.d("item", "Error: " + e.getMessage());
+                }
+            }
+        });
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
-    public void logout(MenuItem item) {
+    public void logout() {
         ParseUser.logOut();
         Toast.makeText(getActivity(), "Successfully logged out.", Toast.LENGTH_LONG);
         Intent i = new Intent(getActivity(), MainActivity.class);

@@ -1,143 +1,116 @@
 package me.carolwang.parstagram;
 
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import me.carolwang.parstagram.models.Post;
+import me.carolwang.parstagram.utils.BitmapScaler;
 
 import static android.app.Activity.RESULT_OK;
-import static me.carolwang.parstagram.HomeFragment.APP_TAG;
+import static me.carolwang.parstagram.HomeActivity.APP_TAG;
+import static me.carolwang.parstagram.HomeActivity.CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE;
+import static me.carolwang.parstagram.HomeActivity.GALLERY_IMAGE_ACTIVITY_REQUEST_CODE;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PostFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PostFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class PostFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
-    public String photoFileName = "newphoto.jpg";
+    ParseFile imageFile;
+    EditText etCaption;
+    ImageView ivPreview;
+    String photoFileName = "newphoto.jpg";
     File photoFile;
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
-
-    public PostFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PostFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PostFragment newInstance(String param1, String param2) {
-        PostFragment fragment = new PostFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_post, container, false);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+        View view = inflater.inflate(R.layout.fragment_post, container, false);
+        selectImage();
+        ivPreview = view.findViewById(R.id.ivPreview);
+        etCaption = view.findViewById(R.id.etCaption);
+        return view;
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-
-                Intent intent = new Intent(getActivity(), PostActivity.class);
-                intent.putExtra("bitmap_path", photoFile.getAbsolutePath());
-                //HomeActivity.this.startActivity(intent);
-
-            } else { // Result was a failure
-                Toast.makeText(getActivity(), "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
+    public void onPost() {
+        Post post = new Post(imageFile, etCaption.getText().toString(), ParseUser.getCurrentUser());
+        post.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    etCaption.setText("");
+                    ((HomeFragment) ((HomeActivity) getActivity()).fragment1).fetchTimelineAsync(0);
+                    ((HomeActivity) getActivity()).bottomNavigationView.setSelectedItemId(R.id.home);
+                } else {
+                    e.printStackTrace();
+                }
             }
-        }
+        });
     }
 
-    public void onLaunchCamera(MenuItem m) {
+    private void selectImage() {
+        final CharSequence[] items = { "Take Photo", "Choose from Library",
+                "Cancel" };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+
+                if (items[item].equals("Take Photo")) {
+                    onLaunchCamera();
+
+                } else if (items[item].equals("Choose from Library")) {
+                    onLaunchGallery();
+
+                } else if (items[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    public void onLaunchCamera() {
         // create Intent to take a picture and return control to the calling application
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Create a File reference to access to future access
@@ -153,6 +126,16 @@ public class PostFragment extends Fragment {
         if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
             // Start the image capture intent to take photo
             startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+        }
+    }
+
+    public void onLaunchGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            // Start the image capture intent to take photo
+            startActivityForResult(intent, GALLERY_IMAGE_ACTIVITY_REQUEST_CODE);
         }
     }
 
@@ -172,6 +155,87 @@ public class PostFragment extends Fragment {
         File file = new File(mediaStorageDir.getPath() + File.separator + fileName);
 
         return file;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                String imagePath = photoFile.getAbsolutePath();
+                Bitmap imageBitmap = BitmapFactory.decodeFile(imagePath);
+                Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(imageBitmap, 300);
+                // Configure byte output stream
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                // Compress the image further
+                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+                FileOutputStream fos = null;
+                try {
+                    fos = new FileOutputStream(imagePath);
+                    // Write the bytes of the bitmap to file
+                    try {
+                        fos.write(bytes.toByteArray());
+                        fos.close();
+                        imageFile = new ParseFile(new File(imagePath));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } catch (FileNotFoundException e) {
+                    Log.i("asdf", "error");
+                    e.printStackTrace();
+                }
+                ivPreview.setImageBitmap(resizedBitmap);
+            } else { // Result was a failure
+                Toast.makeText(getActivity(), "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
+            }
+        }
+        if (requestCode == GALLERY_IMAGE_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    Uri uri = data.getData();
+                    String filePath = getRealPathFromURI(uri);
+
+                    Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+                    Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(bitmap, 300);
+                    // Configure byte output stream
+                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                    // Compress the image further
+                    resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+                    FileOutputStream fos = null;
+                    try {
+                        fos = new FileOutputStream(filePath);
+                        // Write the bytes of the bitmap to file
+                        try {
+                            fos.write(bytes.toByteArray());
+                            fos.close();
+                            imageFile = new ParseFile(new File(filePath));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } catch (FileNotFoundException e) {
+                        Log.i("asdf", "error");
+                        e.printStackTrace();
+                    }
+                    ivPreview.setImageBitmap(resizedBitmap);
+                }
+
+            } else { // Result was a failure
+                Toast.makeText(getActivity(), "Picture wasn't selected!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getActivity().getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
     }
 
 }

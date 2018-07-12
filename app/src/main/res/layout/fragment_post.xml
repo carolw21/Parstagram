@@ -36,4 +36,12 @@
         android:onClick="onPost"
         android:text="@string/post" />
 
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/pink_4"
+        android:foregroundGravity="center" />
+
 </RelativeLayout>

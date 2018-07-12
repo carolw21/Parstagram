@@ -4,33 +4,30 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
 import org.parceler.Parcels;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Locale;
 
 import me.carolwang.parstagram.models.Post;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
+public class MyPostAdapter extends RecyclerView.Adapter<MyPostAdapter.ViewHolder> {
 
     private final List<Post> posts;
     Context context;
 
     // pass in the Tweets array in the constructor
-    public PostAdapter(List<Post> posts) {
+    public MyPostAdapter(List<Post> posts) {
         this.posts = posts;
     }
+
+
 
     // for each row, inflate the layout and cache references into ViewHolder
     @NonNull
@@ -40,7 +37,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         return new ViewHolder(
-                inflater.inflate(R.layout.item_post, parent, false)
+                inflater.inflate(R.layout.item_mypost, parent, false)
         );
     }
 
@@ -49,10 +46,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // get the data according to position
         Post post = posts.get(position);
-
-        holder.tvUser.setText(post.getUser().getUsername());
-        holder.tvCaption.setText(post.getCaption());
-        holder.tvTimestamp.setText(getRelativeTimeAgo(post.getDate().toString()));
 
         Glide.with(context)
                 .load(post.getImage().getUrl())
@@ -79,17 +72,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     // create ViewHolder class
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView tvUser;
-        TextView tvCaption;
-        TextView tvTimestamp;
         ImageView ivPost;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            tvUser = itemView.findViewById(R.id.tvUser);
-            tvCaption = itemView.findViewById(R.id.tvCaption);
-            tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             ivPost = itemView.findViewById(R.id.ivPost);
 
             itemView.setOnClickListener(this);
@@ -102,31 +89,22 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             int position = getAdapterPosition();
             // make sure the position is valid, i.e. actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
+                // get the movie at the position, this won't work if the class is static
                 Post post = posts.get(position);
+
+                /*// create intent for the new activity
+                Intent intent = new Intent(context, PostDetailsActivity.class);
+                // serialize the movie using parceler, use its short name as a key
+                intent.putExtra(Post.class.getSimpleName(), Parcels.wrap(post));
+                // show the activity
+                context.startActivity(intent);*/
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(Post.class.getSimpleName(), Parcels.wrap(post)); //any string to be sent
                 HomeActivity activity = (HomeActivity) context;
-                activity.saveData(1, bundle);
+                activity.saveData(2, bundle);
                 activity.transition();
             }
         }
     }
 
-    // getRelativeTimeAgo("Mon Apr 01 21:16:23 +0000 2014");
-    public static String getRelativeTimeAgo(String rawJsonDate) {
-        String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
-        SimpleDateFormat sf = new SimpleDateFormat(twitterFormat, Locale.ENGLISH);
-        sf.setLenient(true);
-
-        String relativeDate = "";
-        try {
-            long dateMillis = sf.parse(rawJsonDate).getTime();
-            relativeDate = DateUtils.getRelativeTimeSpanString(dateMillis,
-                    System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE).toString();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return relativeDate;
-    }
 }
