@@ -1,10 +1,14 @@
 package me.carolwang.parstagram.models;
 
+import android.util.Log;
+
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.Date;
 
@@ -46,6 +50,56 @@ public class Post extends ParseObject {
 
     public void setUser(ParseUser user) {
         put("user", user);
+    }
+
+    public void addLikes(String username) {
+        String likes = getLikes();
+        likes = likes.concat(username+" ");
+        put("likes",likes);
+        saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    try {
+                        fetch();
+                        Log.i("Hello", "Success");
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
+                } else {
+                    Log.i("Parstagram", "Failed to update object, with error code: " + e.toString());
+                }
+            }
+        });
+    }
+
+    public void removeLikes(String username) {
+        String likes = getLikes();
+        likes = likes.replace(username+" ", "");
+        put("likes", likes);
+        saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    try {
+                        fetch();
+                        Log.i("Hello", "Success");
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
+                } else {
+                    Log.i("Parstagram", "Failed to update object, with error code: " + e.toString());
+                }
+            }
+        });
+    }
+
+    public String getLikes() {
+        String arr = getString("likes");
+        if (arr == null || arr.length() == 0) {
+           return "";
+        }
+        return arr;
     }
 
     public static class Query extends ParseQuery<Post> {

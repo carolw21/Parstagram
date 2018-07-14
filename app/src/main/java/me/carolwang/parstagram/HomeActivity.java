@@ -94,4 +94,13 @@ public class HomeActivity extends AppCompatActivity {
         transaction2.replace(R.id.flContainer, fragment4);
         transaction2.commit();
     }
+
+    public void onPhoto(View v) {
+        ((UserFragment) fragment3).selectImage();
+    }
+
+    public void onProfile(View v) {
+        bottomNavigationView.setSelectedItemId(R.id.user);
+    }
+
 }

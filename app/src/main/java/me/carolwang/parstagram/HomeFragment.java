@@ -24,7 +24,7 @@ public class HomeFragment extends Fragment {
 
     public final static String APP_TAG = "Parstagram";
     private final List<Post> posts = new ArrayList<>();
-    private RecyclerView rvPosts;
+    public RecyclerView rvPosts;
     private PostAdapter postAdapter;
     private SwipeRefreshLayout swipeContainer;
 
@@ -74,6 +74,7 @@ public class HomeFragment extends Fragment {
             if (e == null) {
                 postAdapter.clear();
                 postAdapter.addAll(objects);
+                rvPosts.scrollToPosition(0);
                 // Now we call setRefreshing(false) to signal refresh has finished
                 swipeContainer.setRefreshing(false);
             } else {
@@ -92,6 +93,7 @@ public class HomeFragment extends Fragment {
             public void done(List<Post> objects, ParseException e) {
                 if (e == null) {
                     Log.d("HomeFragment", "objects size: " + objects.size());
+                    posts.clear();
                     posts.addAll(objects);
                     postAdapter.notifyDataSetChanged();
                     Log.i("HomeFragment", "populatedFeed");

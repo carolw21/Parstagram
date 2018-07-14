@@ -7,6 +7,17 @@
     android:layout_height="wrap_content">
 
     <ImageView
+        android:id="@+id/ivProfile"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignStart="@id/ivPost"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentTop="true"
+        android:onClick="onProfile"
+        android:src="@drawable/instagram_user_filled_24" />
+
+    <ImageView
         android:id="@+id/ivPost"
         android:layout_width="match_parent"
         android:layout_height="350dp"
@@ -19,10 +30,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignStart="@id/ivPost"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp"
+        android:layout_toRightOf="@id/ivProfile"
+        android:layout_marginTop="23dp"
         android:textStyle="bold"
-        android:layout_marginLeft="10dp"
+        android:onClick="onProfile"
+        android:layout_marginLeft="50dp"
         android:text="TextView" />
 
     <TextView
@@ -32,7 +44,7 @@
         android:layout_alignStart="@id/ivPost"
         android:layout_below="@id/heartBtn"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="5dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginBottom="10dp"
         android:textColor="@color/black"
         android:text="TextView" />
@@ -44,6 +56,7 @@
         android:layout_alignStart="@id/ivPost"
         android:layout_below="@id/tvCaption"
         android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
         android:textColor="@color/grey_6"
         android:text="TextView" />
 
@@ -56,6 +69,15 @@
         android:layout_marginTop="10dp"
         android:background="@drawable/ufi_heart"
         android:scaleType="fitXY" />
+
+    <TextView
+        android:id="@+id/tvLikes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@id/ivPost"
+        android:layout_below="@id/heartBtn"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/commentBtn"
@@ -73,7 +95,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_below="@+id/ivPost"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="18dp"
         android:layout_marginTop="6dp"
         android:layout_toEndOf="@+id/commentBtn"
         android:background="@drawable/ufi_new_direct"

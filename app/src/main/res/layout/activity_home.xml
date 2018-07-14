@@ -15,10 +15,25 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:foregroundTint="@color/black"
+                android:layout_centerVertical="true"
+                android:tint="@color/black"
+                android:src="@drawable/camera_shadow_fill"/>
+            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:src="@drawable/nav_logo_whiteout"/>
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginRight="20dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/nav_inbox_paper_plane"/>
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -30,7 +45,8 @@
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
+        android:paddingTop="10dp"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
         app:itemIconTint="@color/black"

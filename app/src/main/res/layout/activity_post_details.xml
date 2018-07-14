@@ -72,7 +72,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_below="@+id/ivPost"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="16dp"
         android:layout_marginTop="6dp"
         android:layout_toEndOf="@+id/commentBtn"
         android:background="@drawable/ufi_new_direct"
